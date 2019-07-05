@@ -376,6 +376,13 @@ function! lsp#default_get_supported_capabilities(server_info) abort
     return {
     \   'workspace': {
     \       'applyEdit': v:true
+    \   },
+    \   'textDocument': {
+    \       'completion': {
+    \           'completionItem': {
+    \               'preselectSupport': v:true
+    \           }
+    \       }
     \   }
     \ }
 endfunction

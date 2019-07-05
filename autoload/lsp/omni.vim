@@ -99,6 +99,10 @@ function! s:handle_omnicompletion(server_name, complete_counter, data) abort
     let l:result = s:get_completion_result(a:data)
     let l:matches = l:result['matches']
 
+    if l:result['select_first']
+        set completeopt-=noselect
+    endif
+
     if g:lsp_async_completion
         call complete(col('.'), l:matches)
     else
@@ -140,6 +144,12 @@ function! s:send_completion_request(info) abort
                 \ })
 endfunction
 
+function! s:sort_completion_items(lhs, rhs) abort
+    let l:lhs_preselect = has_key(a:lhs, 'preselect') && a:lhs['preselect']
+    let l:rhs_preselect = has_key(a:rhs, 'preselect') && a:rhs['preselect']
+    return l:rhs_preselect - l:lhs_preselect
+endfunction
+
 function! s:get_completion_result(data) abort
     let l:result = a:data['response']['result']
 
@@ -154,9 +164,16 @@ function! s:get_completion_result(data) abort
         let l:incomplete = 0
     endif
 
-    let l:matches = type(l:items) == type([]) ? map(l:items, {_, item -> lsp#omni#get_vim_completion_item(item, 1) }) : []
+    if type(l:items) == type([])
+        call sort(l:items, 's:sort_completion_items')
+        let l:select_first = !empty(l:items) && has_key(l:items[0], 'preselect') && l:items[0]['preselect']
+        let l:matches = map(l:items, {_, item -> lsp#omni#get_vim_completion_item(item, 1) })
+    else
+        let l:select_first = 0
+        let l:matches = []
+    endif
 
-    return {'matches': l:matches, 'incomplete': l:incomplete}
+    return {'matches': l:matches, 'incomplete': l:incomplete, 'select_first': l:select_first}
 endfunction
 
 
