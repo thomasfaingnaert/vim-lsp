@@ -65,6 +65,12 @@ set foldmethod=expr
 
 Also see `:h vim-lsp-folding`.
 
+## Semantic highlighting
+vim-lsp supports the unofficial extension to the LSP protocol for semantic highlighting (https://github.com/microsoft/vscode-languageserver-node/pull/367).
+This feature requires Neovim highlights, or Vim with the `textprop` feature enabled.
+You will also need to link language server semantic scopes to Vim highlight groups.
+Refer to `:h vim-lsp-semantic` for more info.
+
 ## Supported commands
 
 **Note:**
